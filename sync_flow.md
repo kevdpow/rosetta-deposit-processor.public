@@ -21,13 +21,12 @@ def get_ie_md(ie_pid):
 
 ### Metadata Crosswalk
 
-- Look for IDs in IE Tree using XPath
+- Look for ID in IE Tree using XPath
 
 ```python
-ids = tree.xpath("//dc:identifier[not(@*)]", namespaces=nsmap)
+aleph_id = tree.xpath("//dc:identifier[not(@*)]", namespaces=nsmap)
 ```
 
-- Iterate through IDs looking for Aleph numbers
 - If Aleph ID found, find Aleph record using Aleph API
 
 ```python
@@ -77,7 +76,16 @@ ref_id = tree.xpath('//dc:identifier[@xsi:type="dcterms:Archivesspace"]/text()',
 - Look for ArchivesSpace Repository in IE XML tree
 
 ```python
+repos = {
+    "Center for Jewish History": "repositories/2",
+    "American Jewish Historical Society": "repositories/3",
+    "American Sephardi Federation": "repositories/4",
+    "Leo Baeck Institute": "repositories/5",
+    "Yeshiva University Museum": "repositories/6",
+    "YIVO Institute for Jewish Research": "repositories/7",
+}
 partner = tree.xpath(' //*[@id="authorativeName"]/text()', namespaces=nsmap)[0]
+repo = return "".join(repos[partner])
 ```
 
 - Find ArchivesSpace URI from Ref ID
@@ -94,15 +102,6 @@ ao_json = aspace.client.get(ao_uri).json()
 
 ### Add Link to ArchivesSpace
 
-#### Get Archival Object JSON
-
-```python
-ref_json = aspace.client.get("{}/find_by_id/archival_objects?ref_id[]={}".format(repo_num, ref_id)
-).json()
-ao_uri = ref_json["archival_objects"][0]["ref"]
-ao_json = aspace.client.get(ao_uri).json()
-```
-
 #### Build Digital Object
 
 ```python
@@ -118,6 +117,15 @@ row_obj["file_versions"][0]["caption"] = caption
 row_obj["digital_object_id"] = digital_object_id
 digital_obj_path = repo + "/digital_objects"
 return_val = aspace.client.post(digital_obj_path, json=row_obj)
+```
+
+#### Get Archival Object JSON
+
+```python
+ref_json = aspace.client.get("{}/find_by_id/archival_objects?ref_id[]={}".format(repo, ref_id)
+).json()
+ao_uri = ref_json["archival_objects"][0]["ref"]
+ao_json = aspace.client.get(ao_uri).json()
 ```
 
 #### Associate Digital Object with Archival Object
