@@ -108,7 +108,7 @@ partner = tree.xpath(' //*[@id="authorativeName"]/text()', namespaces=nsmap)[0]
 repo = "".join(repos[partner])
 ```
 
-- Find ArchivesSpace URI from Ref ID
+- Get Archival Object JSON from Ref ID
 
 ```python
 ref_json = aspace.client.get(
@@ -137,6 +137,7 @@ row_obj["file_versions"][0]["caption"] = caption
 row_obj["digital_object_id"] = digital_object_id
 digital_obj_path = repo + "/digital_objects"
 return_val = aspace.client.post(digital_obj_path, json=row_obj)
+do_uri = return_val.json()["uri"]
 ```
 
 #### Get Archival Object JSON
@@ -160,8 +161,7 @@ for key in ao_json.keys():
         new_ao[key] = ao_json[key]
 not_do = [o for o in new_ao["instances"] if "digital_object" not in o.keys()]
 new_ao["instances"] = [*not_do, ao_instance]
-return_val = aspace.client.post(ao_uri, json=new_ao)
-return_obj = return_val.json()
+aspace.client.post(ao_uri, json=new_ao)
 ```
 
 ### Update Metadata in Rosetta
