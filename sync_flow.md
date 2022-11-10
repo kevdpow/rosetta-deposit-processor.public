@@ -126,10 +126,10 @@ ao_json = aspace.client.get(ao_uri).json()
 
 ```python
 row = {}
+title = dc_tree.xpath("//dc:title/text()", namespaces=nsmap)[0]
 caption = "View Folder"
 link = "{}/delivery/DeliveryManagerServlet?dps_pid={}".format(ros_base_url, ie_pid)
 digital_object_id = "ROS_{}".format(ie_pid)
-title = dc_tree.xpath("//dc:title/text()", namespaces=nsmap)[0]
 row_obj = {**digital_obj_template}
 row_obj["title"] = title
 row_obj["file_versions"][0]["file_uri"] = link
