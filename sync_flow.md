@@ -28,18 +28,18 @@
   `ids = tree.xpath("//dc:identifier[not(@*)]", namespaces=nsmap)`
 - Iterate through IDs looking for Aleph numbers
 - If Aleph ID found, find Aleph record using Aleph API
-  - ```python
-      def find_aleph_record(aleph_id):
-          find_num = re.search("\d{9}", aleph_id)
-          if find_num:
-              aleph_id = find_num.group(0)
-              aleph_xml = get_marcxml_from_aleph(aleph_id)
-              if aleph_xml:
-                  return aleph_xml
-    ```
+  ```python
+    def find_aleph_record(aleph_id):
+        find_num = re.search("\d{9}", aleph_id)
+        if find_num:
+            aleph_id = find_num.group(0)
+            aleph_xml = get_marcxml_from_aleph(aleph_id)
+            if aleph_xml:
+                return aleph_xml
+  ```
 - If Aleph record is found
   - Crosswalk MARCXML into Rosetta DC
-    - ```python
+    ```python
          def parseMARCobj(marc_obj):
               xsl = migration_xslt
               transform = etree.XSLT(xsl)
@@ -56,13 +56,13 @@
                   dcMD = etree.fromstring(dcMD_result_string)
                   if dcMD != None:
                       return dcMD
-      ```
+    ```
   - Add IE information to `ie_dict`
-    - ```python
+    ```python
         ie_dict[ie_pid] = {
             "tree": etree.tostring(tree_copy, encoding="utf-8"),
             "aleph_id": aleph_id,
             "aleph_dc": aleph_dc,
             "caption": caption,
         }
-      ```
+    ```
