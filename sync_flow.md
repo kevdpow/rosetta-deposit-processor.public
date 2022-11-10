@@ -1,5 +1,17 @@
 # Syncing Rosetta with ArchivesSpace or Aleph
 
+- [Retrieve Rosetta IE Metadata](#retrieve-rosetta-ie-metadata)
+- [Aleph Sync](#aleph-sync)
+  - [Metadata Crosswalk](#metadata-crosswalk)
+  - [Update Metadata in Rosetta](#update-metadata-in-rosetta)
+- [ArchivesSpace Sync](#archivesspace-sync)
+  - [Metadata Crosswalk](#metadata-crosswalk-1)
+  - [Add Link to ArchivesSpace](#add-link-to-archivesspace)
+    - [Build Digital Object](#build-digital-object)
+    - [Get Archival Object JSON](#get-archival-object-json)
+    - [Associate Digital Object with Archival Object](#associate-digital-object-with-archival-object)
+  - [Update Metadata in Rosetta](#update-metadata-in-rosetta-1)
+
 ## Retrieve Rosetta IE Metadata
 
 ```python
