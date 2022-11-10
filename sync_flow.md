@@ -51,17 +51,6 @@ def get_marcxml_from_aleph(aleph_id):
 
 - Crosswalk MARCXML into Rosetta DC
 
-- Add crosswalked metadata information to `ie_dict`
-
-```python
-ie_dict[ie_pid] = {
-    "tree": etree.tostring(tree_copy, encoding="utf-8"),
-    "aleph_id": aleph_id,
-    "aleph_dc": aleph_dc,
-    "caption": caption,
-}
-```
-
 ### Update Metadata in Rosetta
 
 ```python
@@ -103,17 +92,6 @@ ao_json = aspace.client.get(ao_uri).json()
 ```
 
 - Crosswalk ArchivesSpace JSON into Rosetta DC
-
-- Add crosswalked metadata to `ie_dict`
-
-```python
-ie_dict[ie_pid] = {
-    "tree": etree.tostring(tree, encoding="utf-8"),
-    "ref_id": ref_id,
-    "aspace_dc": aspace_dc,
-    "caption": caption,
-}
-```
 
 ### Add Link to ArchivesSpace
 
