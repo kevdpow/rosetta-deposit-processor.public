@@ -2,9 +2,6 @@
 
 ## Retrieve Rosetta IE Metadata
 
-- Generate list of IEs from CSV, IE List or SIP
-- For each IE in the list, get IE Tree metadata
-
 ```python
 def get_ie_md(ie_pid):
     wsdl = ie_wsdl
@@ -35,7 +32,8 @@ ids = tree.xpath("//dc:identifier[not(@*)]", namespaces=nsmap)
 
 ```python
 def get_marcxml_from_aleph(aleph_id):
-    url = r"http://opac.cjh.org:1891/rest-dlf/record/CJH01{}&view=full".format(aleph_id)
+    aleph_url = "http://baseurl:8080"
+    url = r"{}/rest-dlf/record/CJH01{}&view=full".format(aleph_url, aleph_id)
     request = Request(url)
     try:
         response = urlopen(request)
@@ -54,6 +52,7 @@ def get_marcxml_from_aleph(aleph_id):
 ### Update Metadata in Rosetta
 
 ```python
+aleph_dc = crosswalked_md
 wsdl = ie_wsdl
 tree_copy = copy.deepcopy(tree)
 client = Client(wsdl=wsdl settings=default_settings)
@@ -72,7 +71,7 @@ client.service.updateMD(
 - Look for ArchivesSpace Ref ID in IE XML tree
 
 ```python
-ref_id_list = tree_copy.xpath('//dc:identifier[@xsi:type="dcterms:Archivesspace"]/text()', namespaces=nsmap
+ref_id = tree.xpath('//dc:identifier[@xsi:type="dcterms:Archivesspace"]/text()', namespaces=nsmap)[0]
 ```
 
 - Look for ArchivesSpace Repository in IE XML tree
@@ -85,7 +84,7 @@ partner = tree.xpath(' //*[@id="authorativeName"]/text()', namespaces=nsmap)[0]
 
 ```python
 ref_json = aspace.client.get(
-    "{}/find_by_id/archival_objects?ref_id[]={}".format(repo_num)
+    "{}/find_by_id/archival_objects?ref_id[]={}".format(repo, ref_id)
 ).json()
 ao_uri = ref_json["archival_objects"][0]["ref"]
 ao_json = aspace.client.get(ao_uri).json()
