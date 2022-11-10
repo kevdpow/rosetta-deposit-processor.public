@@ -12,21 +12,29 @@
     - [Associate Digital Object with Archival Object](#associate-digital-object-with-archival-object)
   - [Update Metadata in Rosetta](#update-metadata-in-rosetta-1)
 
+## Important Settings
+
+```python
+from zeep import Client, Settings
+from lxml import etree
+from asnake.aspace import ASpace
+from urllib.request import urlopen, Request
+
+aspace = ASpace()
+default_settings = Settings(force_https=False)
+```
+
 ## Retrieve Rosetta IE Metadata
 
 ```python
-def get_ie_md(ie_pid):
-    wsdl = ie_wsdl
-    oai_xsd = 'xmlns:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"'
-    client = Client(wsdl=wsdl, settings=default_settings)
-    try:
-        tree_string = client.service.getMD(pdsHandle=check_handle(), PID=ie_pid)
-        if oai_xsd in tree_string:
-            tree_string = tree_string.replace(oai_xsd, "")
-    except zeep.exceptions.Fault as e:
-        return None
-    tree_object = etree.fromstring(tree_string.encode("utf-8"))
-    return tree_object
+wsdl = ie_wsdl
+oai_xsd = 'xmlns:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"'
+client = Client(wsdl=wsdl, settings=default_settings)
+tree_string = client.service.getMD(pdsHandle=TOKEN, PID=ie_pid)
+if oai_xsd in tree_string:
+    tree_string = tree_string.replace(oai_xsd, "")
+tree_object = etree.fromstring(tree_string.encode("utf-8"))
+return tree_object
 ```
 
 ## Aleph Sync
@@ -36,26 +44,27 @@ def get_ie_md(ie_pid):
 - Look for ID in IE Tree using XPath
 
 ```python
-aleph_id = tree.xpath("//dc:identifier[not(@*)]", namespaces=nsmap)
+ids = tree.xpath("//dc:identifier[not(@*)]", namespaces=nsmap)
+for i in ids:
+    find_num = re.search("\d{9}", i.text)
+    if find_num:
+        aleph_id = find_num.group(0)
+        return aleph_id
 ```
 
-- If Aleph ID found, find Aleph record using Aleph API
+- Find Aleph record using Aleph API
 
 ```python
-def get_marcxml_from_aleph(aleph_id):
-    aleph_url = "http://baseurl:8080"
-    url = r"{}/rest-dlf/record/CJH01{}&view=full".format(aleph_url, aleph_id)
-    request = Request(url)
-    try:
-        response = urlopen(request)
-        data = response.read()
-        xml_tree = etree.fromstring(data)
-        datafield = xml_tree.xpath('//*[local-name()="datafield"]')
-        if datafield:
-            record = xml_tree.xpath("//record")
-            return etree.ElementTree(record[0])
-    except etree.XMLSyntaxError:
-        return None
+aleph_url = "http://baseurl:8080"
+url = r"{}/rest-dlf/record/CJH01{}&view=full".format(aleph_url, aleph_id)
+request = Request(url)
+response = urlopen(request)
+data = response.read()
+xml_tree = etree.fromstring(data)
+datafield = xml_tree.xpath('//*[local-name()="datafield"]')
+if datafield:
+    record = xml_tree.xpath("//record")
+    aleph_xml = etree.ElementTree(record[0])
 ```
 
 - Crosswalk MARCXML into Rosetta DC
@@ -68,7 +77,7 @@ wsdl = ie_wsdl
 client = Client(wsdl=wsdl settings=default_settings)
 dc_elem_text = etree.tostring(aleph_dc, encoding="utf-8")
 client.service.updateMD(
-    pdsHandle=check_handle(),
+    pdsHandle=TOKEN,
     PID=ie_pid,
     metadata={"type": "descriptive", "subType": "dc", "content": dc_elem_text},
 )
@@ -96,7 +105,7 @@ repos = {
     "YIVO Institute for Jewish Research": "repositories/7",
 }
 partner = tree.xpath(' //*[@id="authorativeName"]/text()', namespaces=nsmap)[0]
-repo = return "".join(repos[partner])
+repo = "".join(repos[partner])
 ```
 
 - Find ArchivesSpace URI from Ref ID
@@ -163,7 +172,7 @@ tree_copy = copy.deepcopy(tree)
 client = Client(wsdl=wsdl settings=default_settings)
 dc_elem_text = etree.tostring(aspace_dc, encoding="utf-8")
 client.service.updateMD(
-    pdsHandle=check_handle(),
+    pdsHandle=TOKEN,
     PID=ie_pid,
     metadata={"type": "descriptive", "subType": "dc", "content": dc_elem_text},
 )
