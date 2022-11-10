@@ -53,7 +53,6 @@ def get_marcxml_from_aleph(aleph_id):
 ```python
 aleph_dc = crosswalked_md
 wsdl = ie_wsdl
-tree_copy = copy.deepcopy(tree)
 client = Client(wsdl=wsdl settings=default_settings)
 dc_elem_text = etree.tostring(aleph_dc, encoding="utf-8")
 client.service.updateMD(
