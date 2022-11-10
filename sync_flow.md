@@ -140,15 +140,6 @@ return_val = aspace.client.post(digital_obj_path, json=row_obj)
 do_uri = return_val.json()["uri"]
 ```
 
-#### Get Archival Object JSON
-
-```python
-ref_json = aspace.client.get("{}/find_by_id/archival_objects?ref_id[]={}".format(repo, ref_id)
-).json()
-ao_uri = ref_json["archival_objects"][0]["ref"]
-ao_json = aspace.client.get(ao_uri).json()
-```
-
 #### Associate Digital Object with Archival Object
 
 ```python
